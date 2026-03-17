@@ -1,0 +1,80 @@
+
+-EKİN ÖNERİ SİSTEMİ (CROP RECOMMENDATION) PROJE REHBERİ-
+
+
+1. VERİ KAYNAĞI VE METODOLOJİ
+Proje kapsamında temel alınan ana veri seti Kaggle üzerinden temin edilmiştir. 
+
+- Ana Veri Seti (Kaggle): https://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset
+- İnceleme ve Kıyaslama Yapılan Kaynaklar: 
+  * GitHub: https://github.com/aakashr02/Crop-Recommendation
+  * Mendeley Data: https://data.mendeley.com/datasets/8v757rr4st/1 (github ve mendeley direkt olarka kullanılmamıştır ama istenirse kullanılabilir.)
+
+ÖNEMLİ NOT: Mendeley (Etiyopya) ve GitHub üzerindeki veri setleri proje hazırlık aşamasında detaylıca incelenmiş, ancak bu verilerdeki sütun isimlerinin, ölçüm birimlerinin ve hedeflenen mahsul türlerinin ana veri setimizle (Kaggle) tam örtüşmemesi nedeniyle "doğrudan" birleştirmeye dahil edilmemiştir. 
+
+Bunun yerine; bu kaynaklardaki bilimsel parametreler (N, P, K, pH vb.) referans alınmış ve Kaggle verisi üzerinden oluşturulan "Toprak" ve "İklim" veri setlerinin doğruluğu bu akademik kaynaklarla teyit edilmiştir. Böylece veri tutarsızlığı ve model hataları engellenerek en yüksek tahmin başarısı hedeflenmiştir.
+
+2. VERİ AÇIKLAMASI (DATA DESCRIPTION)
+Sistemde kullanılan veri seti, bitki yetiştiriciliği için kritik öneme sahip 7 temel parametreyi içermektedir:
+- N (Nitrogen), P (Phosphorous), K (Potassium), pH, Sıcaklık, Nem ve Yağış (Rainfall).
+
+3. VERİ SETİNİN BÖLÜNMESİ (TRAIN / TEST SPLIT)
+Makine öğrenmesi modelinin ezberlemesini önlemek ve gerçek doğruluğunu ölçmek adına, veri seti akademik standartlara uygun olarak ikiye ayrılmıştır:
+- Eğitim Verisi (%80): Modelin bitki türlerini ve toprak özelliklerini öğrenmesi için kullanılan ana veri grubudur.
+- Test Verisi (%20): Modelin daha önce hiç görmediği, modelin doğruluğunu test etmek için kullanılan sınav verisi grubudur.
+- Uygulama: Kod içerisinde 'train_test_split' fonksiyonu ile bu ayrım otomatik olarak yapılmaktadır.
+
+4. SİSTEMİN ÇALIŞMA MANTIĞI
+- Kaggle'dan alınan ham veri, "toprak_verileri.csv" ve "iklim_verileri.csv" olarak iki ayrı gruba ayrılmıştır.
+- Bu iki bağımsız veri grubu, Tarla_ID sütunu üzerinden 'Merge' (Birleştirme) işlemi ile tek bir tabloda birleştirilmiştir.
+- Makine öğrenmesi modeli olarak "Random Forest Classifier" seçilmiş; yüksek doğruluk oranlı bir "Multi-class Classification" yapısı kurulmuştur.
+
+5. KURULUM VE ÇALIŞTIRMA TALİMATLARI
+Sistemi çalıştırmadan önce gerekli kütüphanelerin bilgisayarda yüklü olması gerekir.
+
+A. Kütüphanelerin Kurulumu:
+Terminal veya Komut İstemi'ne şu komutu yazıp Enter'a basın:
+pip3 install pandas scikit-learn streamlit
+
+B. Terminal (Klasik) Modda Çalıştırma:
+Sadece sonucu siyah ekranda görmek için:
+python3 main.py
+
+C. Modern Arayüz (Web) Modunda Çalıştırma:
+Görsel bir panel üzerinden test yapmak için:
+streamlit run app.py
+(Hata alırsanız: python3 -m streamlit run app.py komutunu deneyin.)
+
+6. TEST SENARYOSU YÖNETİMİ
+Modelin çalıştığını ispatlamak adına 'main.py' dosyasının en alt kısmında manuel bir 'test_verisi' alanı oluşturulmuştur. Buraya girilen örnek bir tarlanın değerleri, eğitilmiş model tarafından saniyeler içinde analiz edilmekte ve en uygun ürün önerisi (Örn: Pirinç, Pamuk vb.) terminal ekranına yazdırılmaktadır.
+Teslimat NOTU: Veri Birleştirme: Kodun başında orijinal veriyi ikiye bölüp sonra merge (birleştirme) yaparak "farklı veri setlerini birleştirin" şartını sağladık.
+
+Eğitim/Test Ayrımı: Verinin %20'sini test için ayırdık .
+
+Algoritma: En güvenilir yöntemlerden biri olan "Random Forest" kullandık.
+
+Sonuç: Terminale python3 main.py yazdığında en altta çıkan ekin adı, sistemin yaptığı tahmindir.
+
+
+
+7. TEST VERİSİNİ ÖZELLEŞTİRME (KULLANICI GİRDİSİ)
+Sistemimiz, sadece hazır verilerle değil, manuel olarak girilen yeni tarla verileriyle de tahmin yürütebilmektedir. Farklı bir senaryoyu test etmek isterseniz şu adımları izleyin:
+
+1. 'main.py' dosyasını açın ve en alt kısımdaki şu satırı bulun:
+   test_verisi = [[85, 58, 41, 7.0, 21.5, 80.0, 210.5]]
+
+2. Parantez içindeki rakamları, test etmek istediğiniz yeni değerlerle değiştirin. Rakamların sırası şöyledir:
+   [Azot(N), Fosfor(P), Potasyum(K), pH, Sıcaklık, Nem, Yağış]
+
+3. Örnek Senaryo Değişimi:
+   - Kurak ve sıcak bir arazi için: test_verisi = [[20, 10, 10, 6.5, 38.0, 15.0, 30.0]]
+   - Sulak ve ılıman bir arazi için: test_verisi = [[90, 40, 40, 7.2, 22.0, 85.0, 250.0]]
+
+4. Değişikliği yaptıktan sonra dosyayı kaydedin (Cmd+S) ya da (CTRL + S) ve terminalde tekrar 'python3 main.py' komutunu çalıştırın. Yapay zeka, girdiğiniz yeni değerlere göre dinamik olarak en uygun ekini (tahmini) ekrana yazdıracaktır.
+
+8. MODERN ARAYÜZ (GUI) KULLANIMI
+- 'app.py' çalıştırıldığında tarayıcıda bir web paneli açılır.
+- Sol taraftaki veya ekrandaki kutucuklara tarla değerlerini girin.
+- "Analiz Et" butonuna bastığınızda sonuç ekranda yeşil renkle belirecektir.
+- Yapılan tüm tahminler otomatik olarak 'tahmin_gecmisi.csv' (Excel) dosyasına kaydedilir.
+
